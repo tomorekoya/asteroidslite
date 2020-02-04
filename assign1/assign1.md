@@ -92,10 +92,32 @@ described below.
 
 ## The `Triples` Class
 
+In the file `model.swift` you need to define a new class `Triples`,
+which implements the methods discussed below. Most importantly,
+`Triples` will need the following definitions:
+```
+     var board: [[Int]]
+
+     func newgame() {}         // re-inits 'board', and any other local state
+	 func rotate() {}               // rotate a square 2D Int array clockwise
+	 func shift() {}               // rotate a square 2D Int array clockwise
+	 func rotate() {}               // rotate a square 2D Int array clockwise
+     func game.collapse(dir: Direction)) //
+```
+	 
+`Direction` is an `enum` that you will define for the four directions referenced below.
+	 
+Outside the class, you will need to build two other functions, one of which should be called in your `rotate()` method (ideally the generic, but the other is fine if you don't get the generic working).
+	 
+```
+     func rotate2Dints()   {}  // class-less method that will rotate and square 2D Int array clockwise
+     func rotate2D()   {}        // class-less GENERIC that will rotate and square 2D array clockwise
+```
+
 ### Setup
 ```
 func testSetup() {
-        let game = Threes()
+        let game = Triples()
         game.newgame()
         
         XCTAssertTrue((game.board.count == 4) && (game.board[3].count == 4))
@@ -129,7 +151,7 @@ any type of array.
 Try again with strings.
 ```
     func testRotate3() {
-        let game = Threes()
+        let game = Triples()
         game.board = [[0,3,3,3],[1,2,3,3],[0,2,1,3],[3,3,6,6]]
         game.rotate()
         XCTAssertTrue(game.board == [[3,0,1,0],[3,2,2,3],[6,1,3,3],[6,3,3,3]])
@@ -141,7 +163,7 @@ Write a `shift()` method that collapses each row to the left (as if w/ a left sw
 clip). 
 ```
     func testShift() {
-        let game = Threes()
+        let game = Triples()
         game.board = [[0,3,3,3],[1,2,3,3],[0,2,1,3],[3,3,6,6]]
         game.shift()
         XCTAssertTrue(game.board == [[3,3,3,0],[3,3,3,0],[2,1,3,0],[6,6,6,0]])
@@ -152,14 +174,14 @@ Write and test a `collapse()` method will take a `Direction` enumeration collaps
 direction specified. Internally, you should build `collapse` using `shift()` and `rotate()`.
 ```
     func testLeft() {
-        let game = Threes()
+        let game = Triples()
         game.board = [[0,3,3,3],[1,2,3,3],[0,2,1,3],[3,3,6,6]]
         game.collapse(dir: .left)
         XCTAssertTrue(game.board == [[3,3,3,0],[3,3,3,0],[2,1,3,0],[6,6,6,0]])
     }
 
     func testRight() {
-        let game = Threes()
+        let game = Triples()
         game.board = [[0,3,3,3],[1,2,3,3],[0,2,1,3],[3,3,6,6]]
         game.collapse(dir: .right)
         XCTAssertTrue(game.board == [[0,0,3,6],[0,1,2,6],[0,0,3,3],[0,3,3,12]])
@@ -167,14 +189,14 @@ direction specified. Internally, you should build `collapse` using `shift()` and
     }
 
     func testDown() {
-        let game = Threes()
+        let game = Triples()
         game.board = [[0,3,3,3],[1,2,3,3],[0,2,1,3],[3,3,6,6]]
         game.collapse(dir: .down)
         XCTAssertTrue(game.board == [[0,3,0,0],[0,2,6,3],[1,2,1,6],[3,3,6,6]])
     }
 
     func testUp() {
-        let game = Threes()
+        let game = Triples()
         game.board = [[0,3,3,3],[1,2,3,3],[0,2,1,3],[3,3,6,6]]
         game.collapse(dir: .up)
         XCTAssertTrue(game.board == [[1,3,6,6],[0,2,1,3],[3,2,6,6],[0,3,0,0]])
