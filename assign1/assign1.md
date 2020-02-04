@@ -102,7 +102,7 @@ which implements the methods discussed below. Most importantly,
      func newgame() {}                   // re-inits 'board', and any other local state
 	 func rotate() {}                    // rotate a square 2D Int array clockwise
 	 func shift() {}                     // collapse to the left
-	 func game.collapse(dir: Direction)) // collapse in specified direction using shift() and rotate()
+	 func collapse(dir: Direction))      // collapse in specified direction using shift() and rotate()
 ```
 Note that methods merely modify the `board` property. We are not taking any
 actions based on the board, or doing any GUI work at all.
