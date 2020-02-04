@@ -114,7 +114,7 @@ explicit `Int` version is fine if you don't get the generic working).
 	 
 ```
      func rotate2Dints()   {}  // class-less function that will return of any square 2D Int array rotated clockwise
-     func rotate2D()       {}  // class-less GENERIC that will rotate any square 2D array clockwise
+     func rotate2D()       {}  // *generic* version of the above
 ```
 
 ### Setup
