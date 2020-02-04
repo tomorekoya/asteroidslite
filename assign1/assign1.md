@@ -19,7 +19,7 @@ unit tests in the context of Swift applications, and about defining type extensi
 ## Using git
 We will use [*git*](https://git-scm.com/doc) ([cheat sheet](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=2&ved=2ahUKEwi_uaemsqXgAhVmzlkKHc-HCUkQFjABegQIAhAC&url=https%3A%2F%2Feducation.github.com%2Fgit-cheat-sheet-education.pdf&usg=AOvVaw2D3W2R0fwoOBi8YrhZYLFJ)) both to distribute starting files, for those projects that
 have them (not `assign1`), and to submit the work that you create. Each of you will have had a single
-gitlab repository create, e.g. `ios436spring2020/<dirid>` (but use your
+gitlab repository create, e.g. `ios436spring2020/cmsc436-<dirid>` (but use your
 directoryid, which is NOT a number). Clone this repository as follows:
 1. log into gitlab and verify that you have the above repository
 1. create and upload a public key as described below in "Upload Public Key". This will allow you to
