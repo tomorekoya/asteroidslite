@@ -1,6 +1,6 @@
 # Assignment 1: Swift and Extensions
-**Due: Feb 16, 2020, 11:59:59 pm, v1**
-v0.2
+**Due: Feb 16, 2020, 11:59:59 pm, v0.3**
+
 
 ## Goals
 The primary goal of this project is to to familiarize yourself with the environment and
