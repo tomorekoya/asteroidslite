@@ -222,5 +222,6 @@ Each of the nine tests is worth 1 point. There is no partial credit.
     git commit -m "a message"
     git push origin master
 ```
-  This is exactly the same sequence you will use with the final submit. We will download
+-  This is exactly the same sequence you will use with the final submit. We will download
   your repository from gitlab directly.
+- I
