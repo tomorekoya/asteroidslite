@@ -26,11 +26,11 @@ directoryid, which is NOT a number). Clone this repository as follows:
    access gitlab via `ssh`, which is much less kludgy/buggy than https.
 1. In your terminal window, clone via `git clone git@gitlab.cs.umd.edu:ios436spring2020/cmsc436-<dirid>` (again, use *your*
 dirid). **cd** into this directory.
-  1. **Note** that if your repository is not found, or you don't have
-     permissions, it's because our script could not finish setting the
-     repository up until you had logged into gitlab.cs.umd.edu at least
-     once. Please do this at once, and send mail to keleher@cs.umd.edu w/
-     subject "436 repository".
+    1. **Note** that if your repository is not found, or you don't have
+        permissions, it's because our script could not finish setting the
+        repository up until you had logged into gitlab.cs.umd.edu at least
+        once. Please do this at once, and send mail to keleher@cs.umd.edu w/
+        subject "436 repository".
 2. Establish a new *upstream remote*:  `git remote add upstream
    git@gitlab.cs.umd.edu:keleher/cmsc436spring2020-starter.git` This remote
    will be where you *pull* startup files from when each new project, or iteration of a
