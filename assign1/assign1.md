@@ -106,14 +106,15 @@ which implements the methods discussed below. Most importantly,
 ```
 Note that methods merely modify the `board` property. We are not taking any
 actions based on the board, or doing any GUI work at all.
-	 
 `Direction` is an `enum` that you will define for the four directions referenced below.
 	 
-Outside the class, you will need to build two other functions, one of which should be called in your `rotate()` method (ideally the generic, but the other is fine if you don't get the generic working).
+Outside `Triples`, you will need to build two other functions, one of which
+should be called in your `rotate()` method (ideally the generic, but the
+explicit `Int` version is fine if you don't get the generic working).
 	 
 ```
-     func rotate2Dints()   {}  // class-less method that will rotate and square 2D Int array clockwise
-     func rotate2D()   {}        // class-less GENERIC that will rotate and square 2D array clockwise
+     func rotate2Dints()   {}  // class-less function that will return of any square 2D Int array rotated clockwise
+     func rotate2D()       {}  // class-less GENERIC that will rotate any square 2D array clockwise
 ```
 
 ### Setup
