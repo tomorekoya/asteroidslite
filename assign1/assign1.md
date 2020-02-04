@@ -118,7 +118,10 @@ The first is:
 ```
 You should also build `rotate2D`, which is a *generic* version of the above.
 
-### Setup
+### Unit Tests
+Copy the following unit tests verbatim into your file
+`assign1Ttests.swift`. Do no change anything, as we will use the exact tests
+below to test your definitions in `model.swift`. 
 ```
 func testSetup() {
         let game = Triples()
