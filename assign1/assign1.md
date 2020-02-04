@@ -99,7 +99,7 @@ which implements the methods discussed below. Most importantly,
 ```
      var board: [[Int]]
 
-     func newgame() {}                   // re-inits 'board', and any other local state
+     func newgame() {}                   // re-inits 'board', and any other state you define
      func rotate() {}                    // rotate a square 2D Int array clockwise
      func shift() {}                     // collapse to the left
      func collapse(dir: Direction))      // collapse in specified direction using shift() and rotate()
@@ -159,9 +159,9 @@ Try again with strings.
 ```
     func testRotate3() {
         let game = Triples()
-        game.board = [[0,3,3,3],[1,2,3,3],[0,2,1,3],[3,3,6,6]]
+        game.board = [["0","3","3","3"],["1","2","3","3"],["0","2","1","3"],["3","3","6","6"]]
         game.rotate()
-        XCTAssertTrue(game.board == [[3,0,1,0],[3,2,2,3],[6,1,3,3],[6,3,3,3]])
+        XCTAssertTrue(game.board == [["3","0","1","0"],["3","2","2","3"],["6","1","3","3"],["6","3","3","3"]])
     }
 ```
 
