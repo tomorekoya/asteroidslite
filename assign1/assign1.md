@@ -111,11 +111,12 @@ actions based on the board, or doing any GUI work at all.
 Outside `Triples`, you will need to build two other functions, one of which
 should be called in your `rotate()` method (ideally the generic, but the
 explicit `Int` version is fine if you don't get the generic working).
-	 
+The first is:	 
 ```
-     func rotate2Dints()   {}  // class-less function that will return of any square 2D Int array rotated clockwise
-     func rotate2D()       {}  // *generic* version of the above
+     // class-less function that will return of any square 2D Int array rotated clockwise
+     public func rotate2Dints(input: [[Int]]) -> [[Int]] {}  
 ```
+You should also build `rotate2D`, which is a *generic* version of the above.
 
 ### Setup
 ```
