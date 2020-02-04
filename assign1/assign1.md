@@ -104,6 +104,8 @@ which implements the methods discussed below. Most importantly,
 	 func shift() {}                     // collapse to the left
 	 func game.collapse(dir: Direction)) // collapse in specified direction using shift() and rotate()
 ```
+Note that methods merely modify the `board` property. We are not taking any
+actions based on the board, or doing any GUI work at all.
 	 
 `Direction` is an `enum` that you will define for the four directions referenced below.
 	 
