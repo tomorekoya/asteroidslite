@@ -102,7 +102,7 @@ which implements the methods discussed below. Most importantly,
 	 func rotate() {}               // rotate a square 2D Int array clockwise
 	 func shift() {}               // rotate a square 2D Int array clockwise
 	 func rotate() {}               // rotate a square 2D Int array clockwise
-	 func game.collapse(dir: Direction)) //
+	 func game.collapse(dir: Direction)) // collapse to the left using shift() and rotate()
 ```
 	 
 `Direction` is an `enum` that you will define for the four directions referenced below.
