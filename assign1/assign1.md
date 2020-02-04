@@ -29,8 +29,8 @@ dirid). **cd** into this directory.
     - **Note** that if your repository is not found, or you don't have
         permissions, it's because our script could not finish setting the
         repository up until you had logged into gitlab.cs.umd.edu at least
-        once. Please do this at once, then send mail to keleher@cs.umd.edu w/
-        subject "436 repository".
+        once. Please do this at once, and then try again the next day. If it
+        still fail, email me directly w/ subject "436 repository".
 2. Establish a new *upstream remote*:  `git remote add upstream
    git@gitlab.cs.umd.edu:keleher/cmsc436spring2020-starter.git` This remote
    will be where you *pull* startup files from when each new project, or iteration of a
