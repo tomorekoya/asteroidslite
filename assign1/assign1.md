@@ -123,7 +123,7 @@ Copy the following unit tests verbatim into your file
 `assign1Ttests.swift`. Do no change anything, as we will use the exact tests
 below to test your definitions in `model.swift`. 
 ```
-func testSetup() {
+    func testSetup() {
         let game = Triples()
         game.newgame()
         
@@ -149,12 +149,11 @@ any type of array.
 ```
     func testRotate1() {
         var board = [[0,3,3,3],[1,2,3,3],[0,2,1,3],[3,3,6,6]]
-        board = rotate2DInts(input: board)
+        board = rotate2D(input: board)
         XCTAssertTrue(board == [[3,0,1,0],[3,2,2,3],[6,1,3,3],[6,3,3,3]])
     }
 ```
 
-### Generic Rotate Again
 Try again with strings.
 ```
     func testRotate3() {
