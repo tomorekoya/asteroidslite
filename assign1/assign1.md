@@ -84,7 +84,7 @@ stores. A portion of the game play is shown here:
 
 
 ## Your Tasks
-Your tasks are to implement the gameplay shown in the clip. Specifically, you will
+Your tasks are to implement the *model* behind the gameplay shown in the clip. Specifically, you will
 implement the "collapse", which given a swipe in a direction collapses each row or column
 parallel to the swipe by eliminating a blank, combining a 1 and a 2, or combining two
 consecutive tiles w/ the same value, 3 or higher.  For more specifics, see the tests
