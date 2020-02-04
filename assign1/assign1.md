@@ -34,10 +34,10 @@ dirid). **cd** into this directory.
 3. Verify your setup by executing `git remote -v`. You should see something
 like:
 ```
-origin	git@gitlab.cs.umd.edu:ios436spring2020/cmsc436-<dirid>.git (fetch)
-origin	git@gitlab.cs.umd.edu:ios436spring2020/cmsc436-<dirid>.git (push)
-upstream	git@gitlab.cs.umd.edu:keleher/cmsc436spring2020-starter.git (fetch)
-upstream	git@gitlab.cs.umd.edu:keleher/cmsc436spring2020-starter.git (push)
+origin  git@gitlab.cs.umd.edu:ios436spring2020/cmsc436-<dirid>.git (fetch)
+origin  git@gitlab.cs.umd.edu:ios436spring2020/cmsc436-<dirid>.git (push)
+upstream    git@gitlab.cs.umd.edu:keleher/cmsc436spring2020-starter.git (fetch)
+upstream    git@gitlab.cs.umd.edu:keleher/cmsc436spring2020-starter.git (push)
 ```
 
 Uploading your completed work is a two-step process: `git commit -m "a
@@ -100,18 +100,18 @@ which implements the methods discussed below. Most importantly,
      var board: [[Int]]
 
      func newgame() {}                   // re-inits 'board', and any other local state
-	 func rotate() {}                    // rotate a square 2D Int array clockwise
-	 func shift() {}                     // collapse to the left
-	 func collapse(dir: Direction))      // collapse in specified direction using shift() and rotate()
+     func rotate() {}                    // rotate a square 2D Int array clockwise
+     func shift() {}                     // collapse to the left
+     func collapse(dir: Direction))      // collapse in specified direction using shift() and rotate()
 ```
 Note that methods merely modify the `board` property. We are not taking any
 actions based on the board, or doing any GUI work at all.
 `Direction` is an `enum` that you will define for the four directions referenced below.
-	 
+     
 Outside `Triples`, you will need to build two other functions, one of which
 should be called in your `rotate()` method (ideally the generic, but the
 explicit `Int` version is fine if you don't get the generic working).
-The first is:	 
+The first is:    
 ```
      // class-less function that will return of any square 2D Int array rotated clockwise
      public func rotate2Dints(input: [[Int]]) -> [[Int]] {}  
