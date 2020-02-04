@@ -147,10 +147,10 @@ clockwise. Your func may assume that the array is square.
 Same test using a generic func you must write called `rotate2D`, and which will work on
 any type of array.
 ```
-    func testRotate2() {
-        var board = [["0","3","3","3"],["1","2","3","3"],["0","2","1","3"],["3","3","6","6"]]
-        board = rotate2D(input: board)
-        XCTAssertTrue(board == [["3","0","1","0"],["3","2","2","3"],["6","1","3","3"],["6","3","3","3"]])
+    func testRotate1() {
+        var board = [[0,3,3,3],[1,2,3,3],[0,2,1,3],[3,3,6,6]]
+        board = rotate2DInts(input: board)
+        XCTAssertTrue(board == [[3,0,1,0],[3,2,2,3],[6,1,3,3],[6,3,3,3]])
     }
 ```
 
@@ -158,10 +158,9 @@ any type of array.
 Try again with strings.
 ```
     func testRotate3() {
-        let game = Triples()
-        game.board = [["0","3","3","3"],["1","2","3","3"],["0","2","1","3"],["3","3","6","6"]]
-        game.rotate()
-        XCTAssertTrue(game.board == [["3","0","1","0"],["3","2","2","3"],["6","1","3","3"],["6","3","3","3"]])
+        var board = [["0","3","3","3"],["1","2","3","3"],["0","2","1","3"],["3","3","6","6"]]
+        board = rotate2D(input: board)
+        XCTAssertTrue(board == [["3","0","1","0"],["3","2","2","3"],["6","1","3","3"],["6","3","3","3"]])
     }
 ```
 
