@@ -7,18 +7,26 @@
 //
 
 import SpriteKit
-import GameplayKit
+
+enum CollisionType: UInt32 {
+    case player = 1
+    case playerBullet = 2
+    case alien = 4
+    case alienBullet = 8
+    case asteroid = 16
+}
 
 class GameScene: SKScene {
-    
-    enum CollisionType: UInt32 {
-        case player = 1
-        case playerBullet = 2
-        case alien = 4
-        case alienBullet = 8
-    }
 
     let player = SKSpriteNode(imageNamed: "ship")
+    let waves = Bundle.main.decode([Wave].self, from: "enemyWaves.json")
+    let enemyTypes = Bundle.main.decode([EnemyType].self, from: "enemyTypes.json")
+    
+    var isGameOver = false
+    var level = 0
+    var waveNum = 0
+    
+    let pos = Array(stride(from: -320, through: 320, by: 80))
 
     override func didMove(to view: SKView) {
         if let starParts = SKEmitterNode(fileNamed: "SpaceField") {
@@ -38,9 +46,25 @@ class GameScene: SKScene {
         // What kind in physics world
         player.physicsBody?.categoryBitMask = CollisionType.player.rawValue
         // What it collides with
-        player.physicsBody?.collisionBitMask = CollisionType.alien.rawValue | CollisionType.alienBullet.rawValue
+        player.physicsBody?.collisionBitMask = CollisionType.alien.rawValue | CollisionType.alienBullet.rawValue | CollisionType.asteroid.rawValue
         // What is being told when they collide
-        player.physicsBody?.contactTestBitMask = CollisionType.alien.rawValue | CollisionType.alienBullet.rawValue
+        player.physicsBody?.contactTestBitMask = CollisionType.alien.rawValue | CollisionType.alienBullet.rawValue | CollisionType.asteroid.rawValue
         player.physicsBody?.isDynamic = false           // Gravity doesnt affect
+    }
+    
+    func createWave() {
+        guard !isGameOver else { return }
+        if waveNum == waves.count {
+            level += 1
+            waveNum = 0
+        }
+        
+        let curWave = waves[waveNum]
+        waveNum += 1
+        
+        let maxEnemyType = min(enemyTypes.count, level + 1)
+        let enemyType = Int.random(in: 0..<maxEnemyType)
+        
+        let enemyOffsetX: CGFloat = 100
     }
 }

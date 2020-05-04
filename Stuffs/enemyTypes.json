@@ -1,0 +1,22 @@
+[
+  {
+    "name": "asteroid1",
+    "shields": 1,
+    "speed": 400,
+  },
+  {
+    "name": "asteroid2",
+    "shields": 1,
+    "speed": 400,
+  },
+  {
+    "name": "asteroid3",
+    "shields": 1,
+    "speed": 400,
+  },
+  {
+    "name": "alien",
+    "shields": 1,
+    "speed": 400,
+  }
+]
