@@ -14,7 +14,6 @@
 		0B2333E7245FAEE100A5F3B8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0B2333E5245FAEE100A5F3B8 /* Main.storyboard */; };
 		0B2333E9245FAEE300A5F3B8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0B2333E8245FAEE300A5F3B8 /* Assets.xcassets */; };
 		0B2333EC245FAEE300A5F3B8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0B2333EA245FAEE300A5F3B8 /* LaunchScreen.storyboard */; };
-		0B2333F4245FAF6600A5F3B8 /* SpaceField.sks in Resources */ = {isa = PBXBuildFile; fileRef = 0B2333F3245FAF6600A5F3B8 /* SpaceField.sks */; };
 		0B2333F6245FB85A00A5F3B8 /* enemyTypes.json in Resources */ = {isa = PBXBuildFile; fileRef = 0B2333F5245FB85A00A5F3B8 /* enemyTypes.json */; };
 		0B2333F8245FB86200A5F3B8 /* enemyWaves.json in Resources */ = {isa = PBXBuildFile; fileRef = 0B2333F7245FB86200A5F3B8 /* enemyWaves.json */; };
 		0B2333FA245FB8CA00A5F3B8 /* EnemyType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B2333F9245FB8CA00A5F3B8 /* EnemyType.swift */; };
@@ -22,6 +21,7 @@
 		0B233400245FD93E00A5F3B8 /* BundleDecodeExt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B2333FF245FD93E00A5F3B8 /* BundleDecodeExt.swift */; };
 		0B233406245FDAD000A5F3B8 /* AlienNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B233405245FDAD000A5F3B8 /* AlienNode.swift */; };
 		0B233408245FE46A00A5F3B8 /* Boom.sks in Resources */ = {isa = PBXBuildFile; fileRef = 0B233407245FE46A00A5F3B8 /* Boom.sks */; };
+		0B9F6F182460D98C00A4A1A1 /* AsteroidNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B9F6F172460D98C00A4A1A1 /* AsteroidNode.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,7 +34,6 @@
 		0B2333E8245FAEE300A5F3B8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0B2333EB245FAEE300A5F3B8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0B2333ED245FAEE300A5F3B8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		0B2333F3245FAF6600A5F3B8 /* SpaceField.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = SpaceField.sks; sourceTree = "<group>"; };
 		0B2333F5245FB85A00A5F3B8 /* enemyTypes.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = enemyTypes.json; path = ../../Stuffs/enemyTypes.json; sourceTree = "<group>"; };
 		0B2333F7245FB86200A5F3B8 /* enemyWaves.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = enemyWaves.json; path = ../../Stuffs/enemyWaves.json; sourceTree = "<group>"; };
 		0B2333F9245FB8CA00A5F3B8 /* EnemyType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnemyType.swift; sourceTree = "<group>"; };
@@ -42,6 +41,7 @@
 		0B2333FF245FD93E00A5F3B8 /* BundleDecodeExt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BundleDecodeExt.swift; sourceTree = "<group>"; };
 		0B233405245FDAD000A5F3B8 /* AlienNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlienNode.swift; sourceTree = "<group>"; };
 		0B233407245FE46A00A5F3B8 /* Boom.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = Boom.sks; sourceTree = "<group>"; };
+		0B9F6F172460D98C00A4A1A1 /* AsteroidNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsteroidNode.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,19 +74,19 @@
 		0B2333DA245FAEE100A5F3B8 /* Asteroids */ = {
 			isa = PBXGroup;
 			children = (
+				0B2333DD245FAEE100A5F3B8 /* GameScene.sks */,
 				0B2333DB245FAEE100A5F3B8 /* AppDelegate.swift */,
 				0B2333E5245FAEE100A5F3B8 /* Main.storyboard */,
 				0B2333E3245FAEE100A5F3B8 /* GameViewController.swift */,
-				0B2333DD245FAEE100A5F3B8 /* GameScene.sks */,
 				0B2333E1245FAEE100A5F3B8 /* GameScene.swift */,
 				0B233405245FDAD000A5F3B8 /* AlienNode.swift */,
+				0B9F6F172460D98C00A4A1A1 /* AsteroidNode.swift */,
 				0B2333F9245FB8CA00A5F3B8 /* EnemyType.swift */,
-				0B2333F5245FB85A00A5F3B8 /* enemyTypes.json */,
 				0B2333FB245FB9FE00A5F3B8 /* EnemyWaves.swift */,
+				0B2333F5245FB85A00A5F3B8 /* enemyTypes.json */,
 				0B2333F7245FB86200A5F3B8 /* enemyWaves.json */,
 				0B2333FF245FD93E00A5F3B8 /* BundleDecodeExt.swift */,
 				0B233407245FE46A00A5F3B8 /* Boom.sks */,
-				0B2333F3245FAF6600A5F3B8 /* SpaceField.sks */,
 				0B2333E8245FAEE300A5F3B8 /* Assets.xcassets */,
 				0B2333EA245FAEE300A5F3B8 /* LaunchScreen.storyboard */,
 				0B2333ED245FAEE300A5F3B8 /* Info.plist */,
@@ -158,7 +158,6 @@
 				0B2333F8245FB86200A5F3B8 /* enemyWaves.json in Resources */,
 				0B233408245FE46A00A5F3B8 /* Boom.sks in Resources */,
 				0B2333EC245FAEE300A5F3B8 /* LaunchScreen.storyboard in Resources */,
-				0B2333F4245FAF6600A5F3B8 /* SpaceField.sks in Resources */,
 				0B2333F6245FB85A00A5F3B8 /* enemyTypes.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -176,6 +175,7 @@
 				0B2333FA245FB8CA00A5F3B8 /* EnemyType.swift in Sources */,
 				0B2333DC245FAEE100A5F3B8 /* AppDelegate.swift in Sources */,
 				0B2333FC245FB9FE00A5F3B8 /* EnemyWaves.swift in Sources */,
+				0B9F6F182460D98C00A4A1A1 /* AsteroidNode.swift in Sources */,
 				0B233400245FD93E00A5F3B8 /* BundleDecodeExt.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

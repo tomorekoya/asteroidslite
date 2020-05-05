@@ -1,22 +1,17 @@
 [
   {
-    "name": "asteroid1",
+    "name": "bigAst1",
     "shields": 1,
-    "speed": 400,
+    "speed": 200,
   },
   {
-    "name": "asteroid2",
+    "name": "midAst1",
     "shields": 1,
-    "speed": 400,
+    "speed": 200,
   },
   {
-    "name": "asteroid3",
+    "name": "lilAst1",
     "shields": 1,
-    "speed": 400,
-  },
-  {
-    "name": "alien",
-    "shields": 1,
-    "speed": 400,
+    "speed": 200,
   }
 ]

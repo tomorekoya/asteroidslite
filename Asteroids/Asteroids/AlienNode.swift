@@ -21,8 +21,8 @@ class AlienNode: SKSpriteNode {
         physicsBody = SKPhysicsBody(texture: texture, size: texture.size())
         name = "alien"
         physicsBody?.categoryBitMask = CollisionType.alien.rawValue
-        physicsBody?.collisionBitMask = CollisionType.player.rawValue | CollisionType.playerBullet.rawValue | CollisionType.asteroid.rawValue
-        physicsBody?.contactTestBitMask = CollisionType.player.rawValue | CollisionType.playerBullet.rawValue | CollisionType.asteroid.rawValue
+        physicsBody?.collisionBitMask = CollisionType.player.rawValue | CollisionType.bullet.rawValue | CollisionType.asteroid.rawValue
+        physicsBody?.contactTestBitMask = CollisionType.player.rawValue | CollisionType.bullet.rawValue | CollisionType.asteroid.rawValue
         position = CGPoint(x: startPos.x, y: startPos.y)
         
         confMove()
@@ -41,5 +41,27 @@ class AlienNode: SKSpriteNode {
         // Destroy as soon as movement is done
         let sequence = SKAction.sequence([movement, .removeFromParent()])
         run(sequence)
+    }
+    
+    func alienShoot() {
+        let alienBullet = SKSpriteNode(imageNamed: "bullet")
+        alienBullet.name = "alienBullet"
+        alienBullet.position = position
+        alienBullet.zRotation = zRotation
+        parent?.addChild(alienBullet)
+
+        alienBullet.physicsBody = SKPhysicsBody(rectangleOf: alienBullet.size)
+        alienBullet.physicsBody?.categoryBitMask = CollisionType.bullet.rawValue
+        alienBullet.physicsBody?.collisionBitMask = CollisionType.player.rawValue | CollisionType.asteroid.rawValue
+        alienBullet.physicsBody?.contactTestBitMask = CollisionType.player.rawValue | CollisionType.asteroid.rawValue
+        alienBullet.physicsBody?.mass = 0.001
+
+        let speed: CGFloat = 1
+        let adjustedRotation = zRotation + (CGFloat.pi / 2)
+
+        let dx = speed * cos(adjustedRotation)
+        let dy = speed * sin(adjustedRotation)
+
+        alienBullet.physicsBody?.applyImpulse(CGVector(dx: dx, dy: dy))
     }
 }
