@@ -28,27 +28,37 @@ class GameScene: SKScene {
     var waveNum = 0
     
     let pos = Array(stride(from: -320, through: 320, by: 80))
+    
 
     override func didMove(to view: SKView) {
         // World Physics
         physicsWorld.gravity = .zero
 
-        // MARK:PLAYER
-        player.name = "player"
-        player.position.x = 0              // Centered horizontally
-        player.zPosition = 1
-        addChild(player)
-        // MARK:Player physics
-        player.physicsBody = SKPhysicsBody(texture: player.texture!, size: player.texture!.size())
-        // What kind in physics world
-        player.physicsBody?.categoryBitMask = CollisionType.player.rawValue
-        // What it collides with
-        player.physicsBody?.collisionBitMask = CollisionType.alien.rawValue | CollisionType.bullet.rawValue | CollisionType.asteroid.rawValue
-        // What is being told when they collide
-        player.physicsBody?.contactTestBitMask = CollisionType.alien.rawValue | CollisionType.bullet.rawValue | CollisionType.asteroid.rawValue
-        player.physicsBody?.allowsRotation = false
-        player.physicsBody?.isDynamic = false           // Gravity doesnt affect
+        initShip(player)
+        setUpShipPhysics(player)
     }
+    
+    // MARK: Player
+    func initShip(_ ship: SKSpriteNode) {
+        ship.name = "player"
+        ship.position.x = 0    // Centered horizontally
+        ship.zPosition = 1
+        addChild(ship)
+    }
+
+    // MARK: Player Physics
+    func setUpShipPhysics(_ ship: SKSpriteNode) {
+        ship.physicsBody = SKPhysicsBody(texture: player.texture!, size: player.texture!.size())
+        // What kind in physics world
+        ship.physicsBody?.categoryBitMask = CollisionType.player.rawValue
+        // What it collides with
+        ship.physicsBody?.collisionBitMask = CollisionType.alien.rawValue | CollisionType.bullet.rawValue | CollisionType.asteroid.rawValue
+        // What is being told when they collide
+        ship.physicsBody?.contactTestBitMask = CollisionType.alien.rawValue | CollisionType.bullet.rawValue | CollisionType.asteroid.rawValue
+        ship.physicsBody?.allowsRotation = false
+        ship.physicsBody?.isDynamic = false    // Gravity doesn't affect the ship.
+    }
+    
     
     override func update(_ currentTime: TimeInterval) {
         for child in children {
@@ -62,9 +72,11 @@ class GameScene: SKScene {
         }
     }
     
+    
     // MARK: CREATE WAVE
     func createWave() {
         guard !isGameOver else { return }
+        
         if waveNum == waves.count {
             level += 1
             waveNum = 0
@@ -91,6 +103,7 @@ class GameScene: SKScene {
         }
     }
     
+    
     // MARK: BULLET
     func setBulletPhysics(bullet: SKSpriteNode) {
         bullet.name = "bullet"
@@ -102,6 +115,7 @@ class GameScene: SKScene {
 //        bullet.physicsBody?.usesPreciseCollisionDetection = true
     }
     
+    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard !isGameOver else { return }
         let bullet = SKSpriteNode(imageNamed: "bullet")
@@ -112,6 +126,7 @@ class GameScene: SKScene {
         let sequence = SKAction.sequence([movement, .removeFromParent()])
         bullet.run(sequence)
     }
+    
     
     func didBegin(_ contact: SKPhysicsContact) {
         guard let nodeA = contact.bodyA.node else { return }
@@ -165,6 +180,7 @@ class GameScene: SKScene {
             secondNode.removeFromParent()
         }
     }
+    
     
     // MARK: GAME OVER
     func gameOver() {
