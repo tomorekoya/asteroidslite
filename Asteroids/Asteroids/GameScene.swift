@@ -26,45 +26,81 @@ class GameScene: SKScene {
     var playerShield = 1
     var level = 0
     var waveNum = 0
+    var screenMaxX: CGFloat = 0
+    var screenMaxY: CGFloat = 0
     
     let pos = Array(stride(from: -320, through: 320, by: 80))
+    
 
     override func didMove(to view: SKView) {
-        // World Physics
-        physicsWorld.gravity = .zero
-
-        // MARK:PLAYER
-        player.name = "player"
-        player.position.x = 0              // Centered horizontally
-        player.zPosition = 1
-        addChild(player)
-        // MARK:Player physics
-        player.physicsBody = SKPhysicsBody(texture: player.texture!, size: player.texture!.size())
-        // What kind in physics world
-        player.physicsBody?.categoryBitMask = CollisionType.player.rawValue
-        // What it collides with
-        player.physicsBody?.collisionBitMask = CollisionType.alien.rawValue | CollisionType.bullet.rawValue | CollisionType.asteroid.rawValue
-        // What is being told when they collide
-        player.physicsBody?.contactTestBitMask = CollisionType.alien.rawValue | CollisionType.bullet.rawValue | CollisionType.asteroid.rawValue
-        player.physicsBody?.allowsRotation = false
-        player.physicsBody?.isDynamic = false           // Gravity doesnt affect
+        physicsWorld.gravity = .zero    // World Physics
+        
+        screenMaxX = view.frame.maxX / 2
+        screenMaxY = view.frame.maxY / 2
+        
+        initShip(player)
     }
+    
+    // MARK: Player
+    func initShip(_ ship: SKSpriteNode) {
+        ship.name = "player"
+        ship.position.x = 0    // Centered horizontally
+        ship.position.y = 0
+        ship.zPosition = 1
+        addChild(ship)
+        setUpShipPhysics(ship)
+    }
+
+    // MARK: Player Physics
+    func setUpShipPhysics(_ ship: SKSpriteNode) {
+        ship.physicsBody = SKPhysicsBody(texture: player.texture!, size: player.texture!.size())
+        // What kind in physics world
+        ship.physicsBody?.categoryBitMask = CollisionType.player.rawValue
+        // What it collides with
+        ship.physicsBody?.collisionBitMask = CollisionType.alien.rawValue | CollisionType.bullet.rawValue | CollisionType.asteroid.rawValue
+        // What is being told when they collide
+        ship.physicsBody?.contactTestBitMask = CollisionType.alien.rawValue | CollisionType.bullet.rawValue | CollisionType.asteroid.rawValue
+        ship.physicsBody?.allowsRotation = false
+        ship.physicsBody?.isDynamic = false    // Gravity doesn't affect the ship.
+    }
+    
     
     override func update(_ currentTime: TimeInterval) {
         for child in children {
-            if child.frame.maxX < -700 {
-                child.removeFromParent()            // Remove if way off screen
+            if let sprite = child as? SKSpriteNode {  // Wrap around to the other side of the screen.
+                if sprite.frame.maxX < -screenMaxX - 40 {
+                    sprite.position.x = screenMaxX + 30 + (sprite.texture?.size().width)! / 2
+                }
+                
+                if sprite.frame.maxY < -screenMaxY - 40 {
+                    sprite.position.y = screenMaxY + 30 + (sprite.texture?.size().height)! / 2
+                }
+                
+                if sprite.frame.minX > screenMaxX + 40 {
+                    sprite.position.x = -screenMaxX - 30 - (sprite.texture?.size().width)! / 2
+                }
+                
+                if sprite.frame.minY > screenMaxY + 40 {
+                    sprite.position.y = -screenMaxY - 30 - (sprite.texture?.size().height)! / 2
+                }
             }
         }
+        
         let activeEnemies = children.compactMap{ $0 as? AsteroidNode }
+        
         if activeEnemies.isEmpty {
-            createWave()
+//            createWave()
+            for i in 0..<10 {
+                spawnNewAsteroid()
+            }
         }
     }
+    
     
     // MARK: CREATE WAVE
     func createWave() {
         guard !isGameOver else { return }
+        
         if waveNum == waves.count {
             level += 1
             waveNum = 0
@@ -91,6 +127,16 @@ class GameScene: SKScene {
         }
     }
     
+    // MARK: Testing asteroid spawning
+    func spawnNewAsteroid() {
+        let startX = CGFloat.random(in: -screenMaxX..<screenMaxX)
+        let startY = CGFloat.random(in: -screenMaxY..<screenMaxY)
+        let startPosition = CGPoint(x: startX, y: startY)
+        let newAsteroid = AsteroidNode(type: enemyTypes[0], startPos: startPosition, xOffset: 0)
+        addChild(newAsteroid)
+    }
+    
+    
     // MARK: BULLET
     func setBulletPhysics(bullet: SKSpriteNode) {
         bullet.name = "bullet"
@@ -99,8 +145,9 @@ class GameScene: SKScene {
         bullet.physicsBody?.categoryBitMask = CollisionType.bullet.rawValue
         bullet.physicsBody?.contactTestBitMask = CollisionType.asteroid.rawValue | CollisionType.alien.rawValue | CollisionType.bullet.rawValue
         bullet.physicsBody?.collisionBitMask = CollisionType.asteroid.rawValue | CollisionType.alien.rawValue | CollisionType.bullet.rawValue
-//        bullet.physicsBody?.usesPreciseCollisionDetection = true
+        // bullet.physicsBody?.usesPreciseCollisionDetection = true
     }
+    
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard !isGameOver else { return }
@@ -112,6 +159,7 @@ class GameScene: SKScene {
         let sequence = SKAction.sequence([movement, .removeFromParent()])
         bullet.run(sequence)
     }
+    
     
     func didBegin(_ contact: SKPhysicsContact) {
         guard let nodeA = contact.bodyA.node else { return }
@@ -165,6 +213,7 @@ class GameScene: SKScene {
             secondNode.removeFromParent()
         }
     }
+    
     
     // MARK: GAME OVER
     func gameOver() {

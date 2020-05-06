@@ -12,11 +12,14 @@ class AsteroidNode: SKSpriteNode {
     var type: EnemyType
     var shields: Int
     
+    let roid_speed = 50
+    
     init(type: EnemyType, startPos: CGPoint, xOffset: CGFloat) {
         self.type = type
         shields = type.shields
         let texture = SKTexture(imageNamed: type.name)
         super.init(texture: texture, color: .white, size: texture.size())
+        
         physicsBody = SKPhysicsBody(texture: texture, size: texture.size())
         name = "asteroid"
         physicsBody?.categoryBitMask = CollisionType.asteroid.rawValue
@@ -24,21 +27,17 @@ class AsteroidNode: SKSpriteNode {
         physicsBody?.contactTestBitMask = CollisionType.player.rawValue | CollisionType.bullet.rawValue | CollisionType.alien.rawValue
         position = CGPoint(x: startPos.x, y: startPos.y)
         
-        confMove()
+        drift()
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("HELP")
     }
     
-    func confMove() {
-        let path = UIBezierPath()
-        path.move(to: .zero)
-        path.addCurve(to: CGPoint(x: -3500, y: 0), controlPoint1: CGPoint(x: 0, y: -position.y * 4), controlPoint2: CGPoint(x: -1000, y: -position.y))
-        // Follow some path over time
-        let movement = SKAction.follow(path.cgPath, asOffset: true, orientToPath: true, speed: type.speed)
-        // Destroy as soon as movement is done
-        let sequence = SKAction.sequence([movement, .removeFromParent()])
-        run(sequence)
+    func drift() {
+        let delta_x = Float.random(in: 0.2..<1) * Float(roid_speed) * (Int.random(in: 0..<10) < 5 ? 1 : -1)
+        let delta_y = Float.random(in: 0.2..<1) * Float(roid_speed) * (Int.random(in: 0..<10) < 5 ? 1 : -1)
+        let drift = SKAction.move(by: CGVector(dx: CGFloat(delta_x), dy: CGFloat(delta_y)), duration: TimeInterval(CGFloat(1.0)))
+        run(SKAction.repeatForever(drift))
     }
 }
