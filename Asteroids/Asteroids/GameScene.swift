@@ -7,7 +7,6 @@
 //
 
 import SpriteKit
-import GameplayKit
 
 enum CollisionType: UInt32 {
     case player = 1
@@ -16,7 +15,7 @@ enum CollisionType: UInt32 {
     case asteroid = 8
 }
 
-class GameScene: SKScene {
+class GameScene: SKScene, SKPhysicsContactDelegate {
 
     let player = SKSpriteNode(imageNamed: "ship")
     let waves = Bundle.main.decode([Wave].self, from: "enemyWaves.json")
@@ -34,11 +33,13 @@ class GameScene: SKScene {
 
     override func didMove(to view: SKView) {
         physicsWorld.gravity = .zero    // World Physics
+        physicsWorld.contactDelegate = self
         
         screenMaxX = view.frame.maxX / 2
         screenMaxY = view.frame.maxY / 2
         
         initShip(player)
+        spawnNewAsteroid()
     }
     
     // MARK: Player
@@ -57,10 +58,10 @@ class GameScene: SKScene {
         // What kind in physics world
         ship.physicsBody?.categoryBitMask = CollisionType.player.rawValue
         // What it collides with
-        ship.physicsBody?.collisionBitMask = CollisionType.alien.rawValue | CollisionType.bullet.rawValue | CollisionType.asteroid.rawValue
+        ship.physicsBody?.collisionBitMask = CollisionType.alien.rawValue | CollisionType.asteroid.rawValue
         // What is being told when they collide
-        ship.physicsBody?.contactTestBitMask = CollisionType.alien.rawValue | CollisionType.bullet.rawValue | CollisionType.asteroid.rawValue
-        ship.physicsBody?.allowsRotation = false
+        ship.physicsBody?.contactTestBitMask = CollisionType.alien.rawValue | CollisionType.asteroid.rawValue
+//        ship.physicsBody?.allowsRotation = false
         ship.physicsBody?.isDynamic = false    // Gravity doesn't affect the ship.
     }
     
@@ -90,7 +91,9 @@ class GameScene: SKScene {
         
         if activeEnemies.isEmpty {
 //            createWave()
-            for i in 0..<10 {
+            level += 1
+            
+            for _ in 0..<level+1 {
                 spawnNewAsteroid()
             }
         }
@@ -170,7 +173,7 @@ class GameScene: SKScene {
         let secondNode = sortedNodes[1]
 
         if secondNode.name == "player" {
-            guard isGameOver else { return }
+//            guard isGameOver else { return }
 
             if let boom = SKEmitterNode(fileNamed: "Boom") {
                 boom.position = firstNode.position
@@ -180,7 +183,7 @@ class GameScene: SKScene {
             playerShield -= 1
 
             if playerShield == 0 {
-                gameOver()
+//                gameOver()
                 secondNode.removeFromParent()
             }
 
