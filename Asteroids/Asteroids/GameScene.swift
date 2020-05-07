@@ -87,7 +87,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        
         for touch in touches {
             let location = touch.location(in: self)
             
@@ -155,6 +154,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         scoreLabel.position.y = screenMaxY - scoreLabel.frame.height / 2 - 20
         scoreLabel.zPosition = 1
         addChild(scoreLabel)
+        
+        // TODO: Best
     }
     
     
@@ -294,12 +295,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     
-    // MARK: Testing asteroid spawning
     func spawnNewAsteroid() {
         let startX = CGFloat.random(in: -screenMaxX..<screenMaxX)
         let startY = CGFloat.random(in: -screenMaxY..<screenMaxY)
-        let startPosition = CGPoint(x: startX, y: startY)
-        let newAsteroid = AsteroidNode(type: enemyTypes[0], startPos: startPosition, xOffset: 0)
+        spawnAsteroidAtPosition(type: 0, x: startX, y: startY)
+    }
+    
+    func spawnAsteroidAtPosition(type: Int, x: CGFloat, y: CGFloat) {
+        let startPosition = CGPoint(x: x, y: y)
+        let newAsteroid = AsteroidNode(type: enemyTypes[type], startPos: startPosition)
         addChild(newAsteroid)
     }
     
@@ -342,22 +346,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 run(explosionSoundAction)
             }
 
-            firstNode.removeFromParent()
+            handleAsteroidHit(firstNode)
             playerScore += 20
             updateScoreLabel()
         } else if let asteroid = firstNode as? AsteroidNode {
             asteroid.shields -= 1
 
             if asteroid.shields == 0 {
-                if let boom = SKEmitterNode(fileNamed: "Boom") {
-                    boom.position = asteroid.position
-                    addChild(boom)
-                    run(hitSoundAction)
-                }
-
-                asteroid.removeFromParent()
-                playerScore += 20
-                updateScoreLabel()
+                handleAsteroidHit(asteroid)
             }
 
             if let boom = SKEmitterNode(fileNamed: "Boom") {
@@ -383,6 +379,36 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func updateScoreLabel() {
         scoreLabel.text = "Score: \(playerScore)"
         scoreLabel.position.x = screenMaxX - scoreLabel.frame.width / 2 - 10
+    }
+    
+    
+    func handleAsteroidHit(_ asteroidNode: SKNode) {
+        if let asteroid = asteroidNode as? AsteroidNode {
+            if asteroid.type.name == enemyTypes[0].name {
+                // Handle large asteroid explosion
+                playerScore += 20
+                let offset = CGFloat.random(in: 1...10)
+                spawnAsteroidAtPosition(type: 1, x: asteroid.position.x + offset, y: asteroid.position.y + offset)
+                spawnAsteroidAtPosition(type: 1, x: asteroid.position.x - offset, y: asteroid.position.y - offset)
+            } else if asteroid.type.name == enemyTypes[1].name {
+                // Handle medium asteroid explosion
+                playerScore += 50
+                let offset = CGFloat.random(in: 1...10)
+                spawnAsteroidAtPosition(type: 2, x: asteroid.position.x + offset, y: asteroid.position.y + offset)
+                spawnAsteroidAtPosition(type: 2, x: asteroid.position.x - offset, y: asteroid.position.y - offset)
+            } else {
+                playerScore += 100
+            }
+            
+            if let boom = SKEmitterNode(fileNamed: "Boom") {
+                boom.position = asteroid.position
+                addChild(boom)
+                run(hitSoundAction)
+            }
+
+            asteroid.removeFromParent()
+            updateScoreLabel()
+        }
     }
     
     // MARK: GAME AUDIO
@@ -427,17 +453,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         let maxEnemyType = min(enemyTypes.count, level + 1)
         let enemyType = Int.random(in: 0..<maxEnemyType)
-        let enemyOffsetX: CGFloat = 100
         let enemyStartX = 600
         
         if curWave.enemies.isEmpty {
-            for (index, position) in pos.shuffled().enumerated() {
-                let enemy = AsteroidNode(type: enemyTypes[enemyType], startPos: CGPoint(x: enemyStartX, y: position), xOffset: enemyOffsetX * CGFloat(index * 3))
+            for (_, position) in pos.shuffled().enumerated() {
+                let enemy = AsteroidNode(type: enemyTypes[enemyType], startPos: CGPoint(x: enemyStartX, y: position))
                 addChild(enemy)
             }
         } else {
             for enemy in curWave.enemies {
-                let node = AsteroidNode(type: enemyTypes[enemyType], startPos: CGPoint(x: enemyStartX, y: pos[enemy.position]), xOffset: enemyOffsetX * enemy.xOffset)
+                let node = AsteroidNode(type: enemyTypes[enemyType], startPos: CGPoint(x: enemyStartX, y: pos[enemy.position]))
                 addChild(node)
             }
         }
