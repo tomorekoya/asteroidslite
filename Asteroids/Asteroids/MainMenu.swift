@@ -10,14 +10,22 @@ import SpriteKit
 
 class MainMenu: SKScene {
     
+    let gameTitleLabel = SKLabelNode(text: "Asteroids")
     let newgameButton = SKLabelNode(text: "New Game")
     
     override func didMove(to view: SKView) {
         physicsWorld.gravity = .zero
         
+        gameTitleLabel.name = "title"
+        gameTitleLabel.fontName = "Monaco"
+        gameTitleLabel.position.x = 0
+        gameTitleLabel.position.y = view.frame.maxY / 4
+        gameTitleLabel.zPosition = 1
+        addChild(gameTitleLabel)
+        
         newgameButton.name = "NewGameButton"
         newgameButton.position.x = 0
-        newgameButton.position.y = 0
+        newgameButton.position.y = -view.frame.maxY / 4
         newgameButton.zPosition = 1
         addChild(newgameButton)
     }
