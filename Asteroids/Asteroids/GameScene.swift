@@ -93,17 +93,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let location = touch.location(in: self)
             
             if isPlayerAlive {
-                if location.x < 0 && location.y >= 0 {
+                if location.x < 0 {
                     fingerIsTouching = true
                     touchLocation = location
-                }
-                
-                if location.x < -screenMaxX / 2 && location.y < 0 {
-                    rotateShip(eulerAngle: 0.21)
-                }
-                
-                if location.x < 0 && location.x >= -screenMaxX / 2 && location.y < 0 {
-                    rotateShip(eulerAngle: -0.21)
                 }
                 
                 if location.x >= 0 {
