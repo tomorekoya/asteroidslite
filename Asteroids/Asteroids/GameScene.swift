@@ -6,6 +6,7 @@
 //  Copyright © 2020 deb. All rights reserved.
 //
 
+import CoreMotion
 import SpriteKit
 
 enum CollisionType: UInt32 {
@@ -17,6 +18,7 @@ enum CollisionType: UInt32 {
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
 
+    let motionManager = CMMotionManager()
     let ship = SKSpriteNode(imageNamed: "ship")
     let waves = Bundle.main.decode([Wave].self, from: "enemyWaves.json")
     let enemyTypes = Bundle.main.decode([EnemyType].self, from: "enemyTypes.json")
@@ -43,6 +45,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         initShip(ship: ship)
         spawnNewAsteroid()
+        
+        motionManager.startDeviceMotionUpdates()
     }
     
     // MARK: Player
@@ -74,8 +78,34 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ship.run(moveForward)
     }
     
+    func rotateShip(eulerAngle: CGFloat) {
+        let rotateShip: SKAction
+        
+        print("Euler Angle: \(eulerAngle)")
+        
+        if eulerAngle > 0.05 {
+            let angleToRotate = (eulerAngle - 0.05) * 0.32
+            rotateShip = SKAction.rotate(byAngle: angleToRotate, duration: 0.5)
+            ship.run(rotateShip)
+            shipAngle += angleToRotate
+        } else if eulerAngle < -0.05 {
+            let angleToRotate = (eulerAngle + 0.05) * 0.32
+            rotateShip = SKAction.rotate(byAngle: angleToRotate, duration: 0.5)
+            ship.run(rotateShip)
+            shipAngle += angleToRotate
+        }
+    }
+    
     
     override func update(_ currentTime: TimeInterval) {
+        // Rotate the ship
+        if let data = self.motionManager.deviceMotion {
+            // Get the attitude relative to the magnetic north reference frame.
+            let z = data.attitude.yaw
+            
+            rotateShip(eulerAngle: CGFloat(z))
+        }
+        
         // Move the ship
         if fingerIsTouching {
             moveShip()
