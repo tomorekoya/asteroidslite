@@ -26,11 +26,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let levelLabel = SKLabelNode()
     let livesLabel = SKLabelNode()
     let scoreLabel = SKLabelNode()
+    let bestScoreLabel = SKLabelNode()
     let RIGHT_ANGLE = CGFloat.pi * 0.5    // 90 degrees
     
     var isPlayerAlive = true
     var playerShield = 1
     var playerScore = 0
+    var bestScore = 0
     var level = 0
     var waveNum = 0
     var screenMaxX: CGFloat = 0
@@ -155,7 +157,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         scoreLabel.zPosition = 1
         addChild(scoreLabel)
         
-        // TODO: Best
+        // Best score
+        bestScoreLabel.name = "bestScore"
+        bestScoreLabel.fontSize = CGFloat(22)
+        bestScoreLabel.text = "Best Score: 0"
+        bestScoreLabel.alpha = 0
+        bestScoreLabel.position.x = 0
+        bestScoreLabel.position.y = screenMaxY - bestScoreLabel.frame.height / 2 - 20
+        bestScoreLabel.zPosition = 1
+        addChild(bestScoreLabel)
     }
     
     
@@ -172,6 +182,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
         
         level = 0
+        playerScore = 0
+        scoreLabel.text = "Score: \(playerScore)"
         
         isPlayerAlive = true
         initShip(ship: ship)
@@ -339,16 +351,16 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
             playerShield -= 1
             livesLabel.text = "Lives: \(playerShield)"
+            
+            handleAsteroidHit(firstNode)
+            playerScore += 20
+            updateScoreLabel()
 
             if playerShield == 0 {
                 gameOver()
                 secondNode.removeFromParent()
                 run(explosionSoundAction)
             }
-
-            handleAsteroidHit(firstNode)
-            playerScore += 20
-            updateScoreLabel()
         } else if let asteroid = firstNode as? AsteroidNode {
             asteroid.shields -= 1
 
@@ -428,6 +440,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             boom.position = ship.position
             addChild(boom)
         }
+        
+        // show best score
+        
+        if bestScore < playerScore {
+            bestScore = playerScore
+        }
+        
+        bestScoreLabel.text = "Best Score: \(bestScore)"
+        bestScoreLabel.alpha = 1
         
         // Show Game Over
         levelLabel.text = "Game Over. New Game?"
