@@ -30,14 +30,13 @@ class MainMenu: SKScene {
             
             if touchedNode.name == "NewGameButton" {
                 // Move to the game scene.
-                print("Move to the Game Scene.")
+                loadGame()
             }
         }
     }
     
     func loadGame() {
-        /* Grab a reference to our SpriteKit view */
-        
-        /* 2) Load Game Scene */
+        let scene = SKScene(fileNamed: "GameScene")
+        view?.presentScene(scene)
     }
 }
