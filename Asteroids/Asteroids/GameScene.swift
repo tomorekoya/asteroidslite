@@ -6,6 +6,7 @@
 //  Copyright © 2020 deb. All rights reserved.
 //
 
+import CoreMotion
 import SpriteKit
 
 enum CollisionType: UInt32 {
@@ -17,6 +18,7 @@ enum CollisionType: UInt32 {
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
 
+    let motionManager = CMMotionManager()
     let ship = SKSpriteNode(imageNamed: "ship")
     let waves = Bundle.main.decode([Wave].self, from: "enemyWaves.json")
     let enemyTypes = Bundle.main.decode([EnemyType].self, from: "enemyTypes.json")
@@ -43,7 +45,59 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         initShip(ship: ship)
         spawnNewAsteroid()
+        
+        motionManager.startDeviceMotionUpdates()
     }
+    
+    
+    override func update(_ currentTime: TimeInterval) {
+        // Rotate the ship
+        handleShipRotation()
+        // Move the ship
+        handleShipMovement()
+        // Wrap elements that have moved off-screen
+        handleNodeWraparound()
+        
+        let activeEnemies = children.compactMap{ $0 as? AsteroidNode }
+        
+        if activeEnemies.isEmpty {
+//            createWave()
+            level += 1
+            
+            for _ in 0..<level+1 {
+                spawnNewAsteroid()
+            }
+        }
+    }
+    
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard !isGameOver else { return }
+        
+        for touch in touches {
+            let location = touch.location(in: self)
+            
+            if location.x < 0 {
+                fingerIsTouching = true
+                touchLocation = location
+            }
+            
+            if location.x >= 0 {
+                shootBullet()
+            }
+        }
+    }
+    
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        fingerIsTouching = false
+    }
+    
+    
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
+        fingerIsTouching = false
+    }
+    
     
     // MARK: Player
     func initShip(ship: SKSpriteNode) {
@@ -69,18 +123,56 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ship.physicsBody?.isDynamic = false    // Gravity doesn't affect the ship.
     }
     
+    // MARK: BULLET
+    func setBulletPhysics(bullet: SKSpriteNode) {
+        bullet.name = "bullet"
+        bullet.position = ship.position
+        bullet.physicsBody = SKPhysicsBody(rectangleOf: bullet.size)
+        bullet.physicsBody?.categoryBitMask = CollisionType.bullet.rawValue
+        bullet.physicsBody?.contactTestBitMask = CollisionType.asteroid.rawValue | CollisionType.alien.rawValue | CollisionType.bullet.rawValue
+        bullet.physicsBody?.collisionBitMask = CollisionType.asteroid.rawValue | CollisionType.alien.rawValue | CollisionType.bullet.rawValue
+    }
+    
+    
+    func handleShipRotation() {
+        if let data = self.motionManager.deviceMotion {
+            let z = data.rotationRate.z
+            rotateShip(eulerAngle: CGFloat(z))
+        }
+    }
+    
+    
+    func rotateShip(eulerAngle: CGFloat) {
+        if eulerAngle > 0.1 {
+            shipAngle += 0.05
+            ship.zRotation += 0.05
+        } else if eulerAngle < -0.1 {
+            shipAngle += -0.05
+            ship.zRotation -= 0.05
+        }
+    }
+    
+    
+    // For testing purposes
+    func rad2deg(_ number: Double) -> Double {
+        return number * 180 / .pi
+    }
+    
+    
+    func handleShipMovement() {
+        if fingerIsTouching {
+            moveShip()
+        }
+    }
+    
+    
     func moveShip() {
         let moveForward = SKAction.move(by: CGVector(dx: 5 * cos(shipAngle), dy: 5 * sin(shipAngle)), duration: 0.5)
         ship.run(moveForward)
     }
     
     
-    override func update(_ currentTime: TimeInterval) {
-        // Move the ship
-        if fingerIsTouching {
-            moveShip()
-        }
-        
+    func handleNodeWraparound() {
         for child in children {
             if let sprite = child as? SKSpriteNode {  // Wrap around to the other side of the screen.
                 if sprite.frame.maxX < -screenMaxX - 40 {
@@ -100,17 +192,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 }
             }
         }
+    }
+    
+    
+    // MARK: Testing asteroid spawning
+    func spawnNewAsteroid() {
+        let startX = CGFloat.random(in: -screenMaxX..<screenMaxX)
+        let startY = CGFloat.random(in: -screenMaxY..<screenMaxY)
+        let startPosition = CGPoint(x: startX, y: startY)
+        let newAsteroid = AsteroidNode(type: enemyTypes[0], startPos: startPosition, xOffset: 0)
+        addChild(newAsteroid)
+    }
+    
+    
+    func shootBullet() {
+        let bullet = SKSpriteNode(imageNamed: "bullet")
+        setBulletPhysics(bullet: bullet)
+        addChild(bullet)
         
-        let activeEnemies = children.compactMap{ $0 as? AsteroidNode }
-        
-        if activeEnemies.isEmpty {
-//            createWave()
-            level += 1
-            
-            for _ in 0..<level+1 {
-                spawnNewAsteroid()
-            }
-        }
+        let movement = SKAction.move(by: CGVector(dx: screenMaxX * 1.5 * cos(shipAngle), dy: screenMaxX * 1.5 * sin(shipAngle)), duration: 2)
+        let sequence = SKAction.sequence([movement, .removeFromParent()])
+        bullet.run(sequence)
     }
     
     
@@ -142,63 +244,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 addChild(node)
             }
         }
-    }
-    
-    // MARK: Testing asteroid spawning
-    func spawnNewAsteroid() {
-        let startX = CGFloat.random(in: -screenMaxX..<screenMaxX)
-        let startY = CGFloat.random(in: -screenMaxY..<screenMaxY)
-        let startPosition = CGPoint(x: startX, y: startY)
-        let newAsteroid = AsteroidNode(type: enemyTypes[0], startPos: startPosition, xOffset: 0)
-        addChild(newAsteroid)
-    }
-    
-    
-    // MARK: BULLET
-    func setBulletPhysics(bullet: SKSpriteNode) {
-        bullet.name = "bullet"
-        bullet.position = ship.position
-        bullet.physicsBody = SKPhysicsBody(rectangleOf: bullet.size)
-        bullet.physicsBody?.categoryBitMask = CollisionType.bullet.rawValue
-        bullet.physicsBody?.contactTestBitMask = CollisionType.asteroid.rawValue | CollisionType.alien.rawValue | CollisionType.bullet.rawValue
-        bullet.physicsBody?.collisionBitMask = CollisionType.asteroid.rawValue | CollisionType.alien.rawValue | CollisionType.bullet.rawValue
-        // bullet.physicsBody?.usesPreciseCollisionDetection = true
-    }
-    
-    
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard !isGameOver else { return }
-        
-        for touch in touches {
-            let location = touch.location(in: self)
-            
-            if location.x < 0 {
-                fingerIsTouching = true
-                touchLocation = location
-            }
-            
-            if location.x >= 0 {
-                shootBullet()
-            }
-        }
-    }
-    
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        fingerIsTouching = false
-    }
-    
-    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        fingerIsTouching = false
-    }
-    
-    func shootBullet() {
-        let bullet = SKSpriteNode(imageNamed: "bullet")
-        setBulletPhysics(bullet: bullet)
-        addChild(bullet)
-        
-        let movement = SKAction.move(by: CGVector(dx: 0, dy: screenMaxX * 1.5), duration: 2)
-        let sequence = SKAction.sequence([movement, .removeFromParent()])
-        bullet.run(sequence)
     }
     
     
