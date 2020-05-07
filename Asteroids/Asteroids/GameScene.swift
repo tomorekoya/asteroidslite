@@ -131,35 +131,31 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         bullet.physicsBody?.categoryBitMask = CollisionType.bullet.rawValue
         bullet.physicsBody?.contactTestBitMask = CollisionType.asteroid.rawValue | CollisionType.alien.rawValue | CollisionType.bullet.rawValue
         bullet.physicsBody?.collisionBitMask = CollisionType.asteroid.rawValue | CollisionType.alien.rawValue | CollisionType.bullet.rawValue
-        // bullet.physicsBody?.usesPreciseCollisionDetection = true
     }
     
     
     func handleShipRotation() {
         if let data = self.motionManager.deviceMotion {
-            // Get the attitude relative to the magnetic north reference frame.
-            let z = data.attitude.yaw
+            let z = data.rotationRate.z
             rotateShip(eulerAngle: CGFloat(z))
         }
     }
     
     
     func rotateShip(eulerAngle: CGFloat) {
-        let rotateShip: SKAction
-        
-        print("Euler Angle: \(eulerAngle)")
-        
-        if eulerAngle > 0.05 {
-            let angleToRotate = (eulerAngle - 0.05) * 0.32
-            rotateShip = SKAction.rotate(byAngle: angleToRotate, duration: 0.5)
-            ship.run(rotateShip)
-            shipAngle += angleToRotate
-        } else if eulerAngle < -0.05 {
-            let angleToRotate = (eulerAngle + 0.05) * 0.32
-            rotateShip = SKAction.rotate(byAngle: angleToRotate, duration: 0.5)
-            ship.run(rotateShip)
-            shipAngle += angleToRotate
+        if eulerAngle > 0.1 {
+            shipAngle += 0.05
+            ship.zRotation += 0.05
+        } else if eulerAngle < -0.1 {
+            shipAngle += -0.05
+            ship.zRotation -= 0.05
         }
+    }
+    
+    
+    // For testing purposes
+    func rad2deg(_ number: Double) -> Double {
+        return number * 180 / .pi
     }
     
     
@@ -214,7 +210,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         setBulletPhysics(bullet: bullet)
         addChild(bullet)
         
-        let movement = SKAction.move(by: CGVector(dx: 0, dy: screenMaxX * 1.5), duration: 2)
+        let movement = SKAction.move(by: CGVector(dx: screenMaxX * 1.5 * cos(shipAngle), dy: screenMaxX * 1.5 * sin(shipAngle)), duration: 2)
         let sequence = SKAction.sequence([movement, .removeFromParent()])
         bullet.run(sequence)
     }
