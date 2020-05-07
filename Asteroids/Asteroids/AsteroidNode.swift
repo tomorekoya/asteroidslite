@@ -14,7 +14,7 @@ class AsteroidNode: SKSpriteNode {
     
     let roid_speed = 50
     
-    init(type: EnemyType, startPos: CGPoint, xOffset: CGFloat) {
+    init(type: EnemyType, startPos: CGPoint) {
         self.type = type
         shields = type.shields
         let texture = SKTexture(imageNamed: type.name)

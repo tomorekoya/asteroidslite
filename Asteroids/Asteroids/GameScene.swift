@@ -8,6 +8,7 @@
 
 import CoreMotion
 import SpriteKit
+import AVFoundation
 
 enum CollisionType: UInt32 {
     case player = 1
@@ -22,16 +23,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let ship = SKSpriteNode(imageNamed: "ship")
     let waves = Bundle.main.decode([Wave].self, from: "enemyWaves.json")
     let enemyTypes = Bundle.main.decode([EnemyType].self, from: "enemyTypes.json")
+    let levelLabel = SKLabelNode()
+    let livesLabel = SKLabelNode()
+    let scoreLabel = SKLabelNode()
+    let bestScoreLabel = SKLabelNode()
+    let RIGHT_ANGLE = CGFloat.pi * 0.5    // 90 degrees
     
-    var isGameOver = false
+    var isPlayerAlive = true
     var playerShield = 1
+    var playerScore = 0
+    var bestScore = 0
     var level = 0
     var waveNum = 0
     var screenMaxX: CGFloat = 0
     var screenMaxY: CGFloat = 0
-    var shipAngle: CGFloat = CGFloat.pi * 0.5    // 90 degrees
+    var shipAngle: CGFloat = CGFloat.pi * 0.5
     var fingerIsTouching: Bool = false
     var touchLocation: CGPoint? = nil
+    
+    var shootSoundAction: SKAction!
+    var hitSoundAction: SKAction!
+    var explosionSoundAction: SKAction!
     
     let pos = Array(stride(from: -320, through: 320, by: 80))
     
@@ -43,8 +55,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         screenMaxX = view.frame.maxX / 2
         screenMaxY = view.frame.maxY / 2
         
-        initShip(ship: ship)
-        spawnNewAsteroid()
+        setUpLabels()
+        
+        startNewGame()
+        setUpAudio()
         
         motionManager.startDeviceMotionUpdates()
     }
@@ -61,29 +75,46 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let activeEnemies = children.compactMap{ $0 as? AsteroidNode }
         
         if activeEnemies.isEmpty {
-//            createWave()
             level += 1
             
             for _ in 0..<level+1 {
                 spawnNewAsteroid()
+            }
+            
+            if isPlayerAlive {
+                displayLevel()
             }
         }
     }
     
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard !isGameOver else { return }
-        
         for touch in touches {
             let location = touch.location(in: self)
             
-            if location.x < 0 {
-                fingerIsTouching = true
-                touchLocation = location
-            }
-            
-            if location.x >= 0 {
-                shootBullet()
+            if isPlayerAlive {
+                if location.x < 0 && location.y >= 0 {
+                    fingerIsTouching = true
+                    touchLocation = location
+                }
+                
+                if location.x < -screenMaxX / 2 && location.y < 0 {
+                    rotateShip(eulerAngle: 0.21)
+                }
+                
+                if location.x < 0 && location.x >= -screenMaxX / 2 && location.y < 0 {
+                    rotateShip(eulerAngle: -0.21)
+                }
+                
+                if location.x >= 0 {
+                    shootBullet()
+                }
+            } else {
+                let touchedNode = atPoint(location)
+                
+                if touchedNode.name == "level" {
+                    startNewGame()
+                }
             }
         }
     }
@@ -99,6 +130,85 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     
+    func setUpLabels() {
+        // Level
+        levelLabel.name = "level"
+        levelLabel.position.x = 0
+        levelLabel.position.y = 0
+        levelLabel.zPosition = 1
+        levelLabel.alpha = 0.0    // Initially not visible.
+        addChild(levelLabel)
+        
+        // Lives
+        livesLabel.name = "lives"
+        livesLabel.fontSize = CGFloat(20)
+        livesLabel.text = "Lives: 0"
+        livesLabel.position.x = -screenMaxX + livesLabel.frame.width / 2 + 10
+        livesLabel.position.y = screenMaxY - livesLabel.frame.height / 2 - 20
+        livesLabel.zPosition = 1
+        addChild(livesLabel)
+        
+        // Score
+        scoreLabel.name = "score"
+        scoreLabel.fontSize = CGFloat(20)
+        scoreLabel.text = "Score: 0"
+        scoreLabel.position.x = screenMaxX - scoreLabel.frame.width / 2 - 10
+        scoreLabel.position.y = screenMaxY - scoreLabel.frame.height / 2 - 20
+        scoreLabel.zPosition = 1
+        addChild(scoreLabel)
+        
+        // Best score
+        bestScoreLabel.name = "bestScore"
+        bestScoreLabel.fontSize = CGFloat(22)
+        bestScoreLabel.text = "Best Score: 0"
+        bestScoreLabel.alpha = 0
+        bestScoreLabel.position.x = 0
+        bestScoreLabel.position.y = screenMaxY - bestScoreLabel.frame.height / 2 - 20
+        bestScoreLabel.zPosition = 1
+        addChild(bestScoreLabel)
+    }
+    
+    
+    func startNewGame() {
+        // Hide the level label
+        levelLabel.alpha = 0
+        
+        // Remove all asteroids on screen
+        
+        let activeEnemies = children.compactMap{ $0 as? AsteroidNode }
+        
+        for enemy in activeEnemies {
+            enemy.removeFromParent()
+        }
+        
+        level = 0
+        playerScore = 0
+        scoreLabel.text = "Score: \(playerScore)"
+        
+        isPlayerAlive = true
+        initShip(ship: ship)
+        shipAngle = RIGHT_ANGLE
+        spawnNewAsteroid()
+        
+        if isPlayerAlive {
+            // Show the level at the top of the screen
+            displayLevel()
+        }
+    }
+    
+    
+    func displayLevel() {
+        levelLabel.position.y = screenMaxY / 2
+        levelLabel.text = "Level \(level + 1)"
+        
+        let fadeIn = SKAction.fadeIn(withDuration: 0.5)
+        let fadeOut = SKAction.fadeOut(withDuration: 0.5)
+        let delay = SKAction.wait(forDuration: 2)
+        
+        levelLabel.run(.sequence([fadeIn, delay, fadeOut]))
+    }
+    
+    
     // MARK: Player
     func initShip(ship: SKSpriteNode) {
         ship.name = "player"
@@ -107,6 +217,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ship.zPosition = 1
         ship.zRotation = CGFloat.pi * 0.23
         addChild(ship)
+        playerShield = 3
+        livesLabel.text = "Lives: \(playerShield)"
         setUpShipPhysics(ship)
     }
 
@@ -195,12 +307,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     
-    // MARK: Testing asteroid spawning
     func spawnNewAsteroid() {
         let startX = CGFloat.random(in: -screenMaxX..<screenMaxX)
         let startY = CGFloat.random(in: -screenMaxY..<screenMaxY)
-        let startPosition = CGPoint(x: startX, y: startY)
-        let newAsteroid = AsteroidNode(type: enemyTypes[0], startPos: startPosition, xOffset: 0)
+        spawnAsteroidAtPosition(type: 0, x: startX, y: startY)
+    }
+    
+    func spawnAsteroidAtPosition(type: Int, x: CGFloat, y: CGFloat) {
+        let startPosition = CGPoint(x: x, y: y)
+        let newAsteroid = AsteroidNode(type: enemyTypes[type], startPos: startPosition)
         addChild(newAsteroid)
     }
     
@@ -213,37 +328,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let movement = SKAction.move(by: CGVector(dx: screenMaxX * 1.5 * cos(shipAngle), dy: screenMaxX * 1.5 * sin(shipAngle)), duration: 2)
         let sequence = SKAction.sequence([movement, .removeFromParent()])
         bullet.run(sequence)
-    }
-    
-    
-    // MARK: CREATE WAVE
-    func createWave() {
-        guard !isGameOver else { return }
-        
-        if waveNum == waves.count {
-            level += 1
-            waveNum = 0
-        }
-        
-        let curWave = waves[waveNum]
-        waveNum += 1
-        
-        let maxEnemyType = min(enemyTypes.count, level + 1)
-        let enemyType = Int.random(in: 0..<maxEnemyType)
-        let enemyOffsetX: CGFloat = 100
-        let enemyStartX = 600
-        
-        if curWave.enemies.isEmpty {
-            for (index, position) in pos.shuffled().enumerated() {
-                let enemy = AsteroidNode(type: enemyTypes[enemyType], startPos: CGPoint(x: enemyStartX, y: position), xOffset: enemyOffsetX * CGFloat(index * 3))
-                addChild(enemy)
-            }
-        } else {
-            for enemy in curWave.enemies {
-                let node = AsteroidNode(type: enemyTypes[enemyType], startPos: CGPoint(x: enemyStartX, y: pos[enemy.position]), xOffset: enemyOffsetX * enemy.xOffset)
-                addChild(node)
-            }
-        }
+        run(shootSoundAction)
     }
     
     
@@ -256,31 +341,31 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let secondNode = sortedNodes[1]
 
         if secondNode.name == "player" {
-//            guard isGameOver else { return }
+            guard isPlayerAlive else { return }
 
             if let boom = SKEmitterNode(fileNamed: "Boom") {
                 boom.position = firstNode.position
                 addChild(boom)
+                run(hitSoundAction)
             }
 
             playerShield -= 1
+            livesLabel.text = "Lives: \(playerShield)"
+            
+            handleAsteroidHit(firstNode)
+            playerScore += 20
+            updateScoreLabel()
 
             if playerShield == 0 {
-//                gameOver()
+                gameOver()
                 secondNode.removeFromParent()
+                run(explosionSoundAction)
             }
-
-            firstNode.removeFromParent()
         } else if let asteroid = firstNode as? AsteroidNode {
             asteroid.shields -= 1
 
             if asteroid.shields == 0 {
-                if let boom = SKEmitterNode(fileNamed: "Boom") {
-                    boom.position = asteroid.position
-                    addChild(boom)
-                }
-
-                asteroid.removeFromParent()
+                handleAsteroidHit(asteroid)
             }
 
             if let boom = SKEmitterNode(fileNamed: "Boom") {
@@ -297,18 +382,110 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
             firstNode.removeFromParent()
             secondNode.removeFromParent()
+            
+            playerScore += 20
+            updateScoreLabel()
         }
+    }
+    
+    func updateScoreLabel() {
+        scoreLabel.text = "Score: \(playerScore)"
+        scoreLabel.position.x = screenMaxX - scoreLabel.frame.width / 2 - 10
+    }
+    
+    
+    func handleAsteroidHit(_ asteroidNode: SKNode) {
+        if let asteroid = asteroidNode as? AsteroidNode {
+            if asteroid.type.name == enemyTypes[0].name {
+                // Handle large asteroid explosion
+                playerScore += 20
+                let offset = CGFloat.random(in: 1...10)
+                spawnAsteroidAtPosition(type: 1, x: asteroid.position.x + offset, y: asteroid.position.y + offset)
+                spawnAsteroidAtPosition(type: 1, x: asteroid.position.x - offset, y: asteroid.position.y - offset)
+            } else if asteroid.type.name == enemyTypes[1].name {
+                // Handle medium asteroid explosion
+                playerScore += 50
+                let offset = CGFloat.random(in: 1...10)
+                spawnAsteroidAtPosition(type: 2, x: asteroid.position.x + offset, y: asteroid.position.y + offset)
+                spawnAsteroidAtPosition(type: 2, x: asteroid.position.x - offset, y: asteroid.position.y - offset)
+            } else {
+                playerScore += 100
+            }
+            
+            if let boom = SKEmitterNode(fileNamed: "Boom") {
+                boom.position = asteroid.position
+                addChild(boom)
+                run(hitSoundAction)
+            }
+
+            asteroid.removeFromParent()
+            updateScoreLabel()
+        }
+    }
+    
+    // MARK: GAME AUDIO
+    func setUpAudio() {
+        shootSoundAction = .playSoundFileNamed("laser.m4a", waitForCompletion: false)
+        hitSoundAction = .playSoundFileNamed("hit.m4a", waitForCompletion: false)
+        explosionSoundAction = .playSoundFileNamed("explode.m4a", waitForCompletion: false)
     }
     
     
     // MARK: GAME OVER
     func gameOver() {
-        isGameOver = true
+        isPlayerAlive = false
 
         // show boom
         if let boom = SKEmitterNode(fileNamed: "Boom") {
             boom.position = ship.position
             addChild(boom)
+        }
+        
+        // show best score
+        
+        if bestScore < playerScore {
+            bestScore = playerScore
+        }
+        
+        bestScoreLabel.text = "Best Score: \(bestScore)"
+        bestScoreLabel.alpha = 1
+        
+        // Show Game Over
+        levelLabel.text = "Game Over. New Game?"
+        levelLabel.position.y = 0
+        levelLabel.removeAllActions()
+        
+        let reveal = SKAction.fadeIn(withDuration: 0.5)
+        levelLabel.run(reveal)
+    }
+    
+    
+    // MARK: CREATE WAVE
+    func createWave() {
+        guard isPlayerAlive else { return }
+        
+        if waveNum == waves.count {
+            level += 1
+            waveNum = 0
+        }
+        
+        let curWave = waves[waveNum]
+        waveNum += 1
+        
+        let maxEnemyType = min(enemyTypes.count, level + 1)
+        let enemyType = Int.random(in: 0..<maxEnemyType)
+        let enemyStartX = 600
+        
+        if curWave.enemies.isEmpty {
+            for (_, position) in pos.shuffled().enumerated() {
+                let enemy = AsteroidNode(type: enemyTypes[enemyType], startPos: CGPoint(x: enemyStartX, y: position))
+                addChild(enemy)
+            }
+        } else {
+            for enemy in curWave.enemies {
+                let node = AsteroidNode(type: enemyTypes[enemyType], startPos: CGPoint(x: enemyStartX, y: pos[enemy.position]))
+                addChild(node)
+            }
         }
     }
 }
