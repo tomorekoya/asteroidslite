@@ -8,6 +8,7 @@
 
 import CoreMotion
 import SpriteKit
+import AVFoundation
 
 enum CollisionType: UInt32 {
     case player = 1
@@ -23,10 +24,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let waves = Bundle.main.decode([Wave].self, from: "enemyWaves.json")
     let enemyTypes = Bundle.main.decode([EnemyType].self, from: "enemyTypes.json")
     let levelLabel = SKLabelNode()
+    let livesLabel = SKLabelNode()
+    let scoreLabel = SKLabelNode()
     let RIGHT_ANGLE = CGFloat.pi * 0.5    // 90 degrees
     
     var isPlayerAlive = true
     var playerShield = 1
+    var playerScore = 0
     var level = 0
     var waveNum = 0
     var screenMaxX: CGFloat = 0
@@ -34,6 +38,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var shipAngle: CGFloat = CGFloat.pi * 0.5
     var fingerIsTouching: Bool = false
     var touchLocation: CGPoint? = nil
+    
+    var shootSoundAction: SKAction!
+    var hitSoundAction: SKAction!
+    var explosionSoundAction: SKAction!
     
     let pos = Array(stride(from: -320, through: 320, by: 80))
     
@@ -45,14 +53,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         screenMaxX = view.frame.maxX / 2
         screenMaxY = view.frame.maxY / 2
         
-        levelLabel.name = "level"
-        levelLabel.position.x = 0
-        levelLabel.position.y = 0
-        levelLabel.zPosition = 1
-        levelLabel.alpha = 0.0    // Initially not visible.
-        addChild(levelLabel)
+        setUpLabels()
         
         startNewGame()
+        setUpAudio()
         
         motionManager.startDeviceMotionUpdates()
     }
@@ -125,6 +129,35 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     
+    func setUpLabels() {
+        // Level
+        levelLabel.name = "level"
+        levelLabel.position.x = 0
+        levelLabel.position.y = 0
+        levelLabel.zPosition = 1
+        levelLabel.alpha = 0.0    // Initially not visible.
+        addChild(levelLabel)
+        
+        // Lives
+        livesLabel.name = "lives"
+        livesLabel.fontSize = CGFloat(20)
+        livesLabel.text = "Lives: 0"
+        livesLabel.position.x = -screenMaxX + livesLabel.frame.width / 2 + 10
+        livesLabel.position.y = screenMaxY - livesLabel.frame.height / 2 - 20
+        livesLabel.zPosition = 1
+        addChild(livesLabel)
+        
+        // Score
+        scoreLabel.name = "score"
+        scoreLabel.fontSize = CGFloat(20)
+        scoreLabel.text = "Score: 0"
+        scoreLabel.position.x = screenMaxX - scoreLabel.frame.width / 2 - 10
+        scoreLabel.position.y = screenMaxY - scoreLabel.frame.height / 2 - 20
+        scoreLabel.zPosition = 1
+        addChild(scoreLabel)
+    }
+    
+    
     func startNewGame() {
         // Hide the level label
         levelLabel.alpha = 0
@@ -150,6 +183,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
+    
     func displayLevel() {
         levelLabel.position.y = screenMaxY / 2
         levelLabel.text = "Level \(level + 1)"
@@ -170,7 +204,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         ship.zPosition = 1
         ship.zRotation = CGFloat.pi * 0.23
         addChild(ship)
-        playerShield = 1
+        playerShield = 3
+        livesLabel.text = "Lives: \(playerShield)"
         setUpShipPhysics(ship)
     }
 
@@ -277,6 +312,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let movement = SKAction.move(by: CGVector(dx: screenMaxX * 1.5 * cos(shipAngle), dy: screenMaxX * 1.5 * sin(shipAngle)), duration: 2)
         let sequence = SKAction.sequence([movement, .removeFromParent()])
         bullet.run(sequence)
+        run(shootSoundAction)
     }
     
     
@@ -294,16 +330,21 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if let boom = SKEmitterNode(fileNamed: "Boom") {
                 boom.position = firstNode.position
                 addChild(boom)
+                run(hitSoundAction)
             }
 
             playerShield -= 1
+            livesLabel.text = "Lives: \(playerShield)"
 
             if playerShield == 0 {
                 gameOver()
                 secondNode.removeFromParent()
+                run(explosionSoundAction)
             }
 
             firstNode.removeFromParent()
+            playerScore += 20
+            updateScoreLabel()
         } else if let asteroid = firstNode as? AsteroidNode {
             asteroid.shields -= 1
 
@@ -311,9 +352,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 if let boom = SKEmitterNode(fileNamed: "Boom") {
                     boom.position = asteroid.position
                     addChild(boom)
+                    run(hitSoundAction)
                 }
 
                 asteroid.removeFromParent()
+                playerScore += 20
+                updateScoreLabel()
             }
 
             if let boom = SKEmitterNode(fileNamed: "Boom") {
@@ -330,7 +374,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
 
             firstNode.removeFromParent()
             secondNode.removeFromParent()
+            
+            playerScore += 20
+            updateScoreLabel()
         }
+    }
+    
+    func updateScoreLabel() {
+        scoreLabel.text = "Score: \(playerScore)"
+        scoreLabel.position.x = screenMaxX - scoreLabel.frame.width / 2 - 10
+    }
+    
+    // MARK: GAME AUDIO
+    func setUpAudio() {
+        shootSoundAction = .playSoundFileNamed("laser.m4a", waitForCompletion: false)
+        hitSoundAction = .playSoundFileNamed("hit.m4a", waitForCompletion: false)
+        explosionSoundAction = .playSoundFileNamed("explode.m4a", waitForCompletion: false)
     }
     
     
